@@ -1,9 +1,11 @@
 import java.util.HashMap;
 
+import interfaces.Number;
+
 /**
  * 
  */
-class RomanNumber {
+class RomanNumber implements Number {
 	private final int VALUE;
 	private final String NUMBER;
 
@@ -122,6 +124,31 @@ class RomanNumber {
 			if (!romanNumbers.containsKey(String.valueOf(num.charAt(i))))
 				return false;
 		return true;
+	}
+
+	@Override
+	public Number add(Number n) {
+		return new RomanNumber(VALUE + n.getIntegerValue());
+	}
+
+	@Override
+	public Number subtract(Number n) {
+		return new RomanNumber(VALUE - n.getIntegerValue());
+	}
+
+	@Override
+	public Number multiply(Number n) {
+		return new RomanNumber(VALUE * n.getIntegerValue());
+	}
+
+	@Override
+	public Number divide(Number n) {
+		return new RomanNumber(VALUE / n.getIntegerValue());
+	}
+
+	@Override
+	public int getIntegerValue() {
+		return VALUE;
 	}
 
 }

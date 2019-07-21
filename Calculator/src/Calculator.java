@@ -75,13 +75,10 @@ public class Calculator {
 		if (bracketsCounter != 0)
 			throw new IllegalArgumentException("Кількість дужок, що відкриваються і закриваються не збігається");
 
-		if (!isValidExpression(new StringTokenizer(tokenized)))
-			throw new IllegalArgumentException("Введенно некоректний вираз(можливо числа різних видів)");
-
 		return new StringTokenizer(tokenized);
 	}
 
-	private boolean isValidExpression(StringTokenizer expression) {
+	private String numbersType(StringTokenizer expression) {
 		String currentToken = "";
 		boolean hasRoman = false;
 		boolean hasArabic = false;
@@ -97,17 +94,25 @@ public class Calculator {
 				if (RomanNumber.isRomanNumber(currentToken))
 					hasRoman = true;
 				else
-					return false;
+					throw new IllegalArgumentException("Введенно некоректний вираз");
 			}
 			if (hasRoman && hasArabic)
-				return false;
+				throw new IllegalArgumentException("Введенно некоректний вираз(присутні числа різних видів)");
 		}
-
-		return true;
+		if (hasRoman)
+			return "roman";
+		else
+			return "arabic";
 	}
 
 	public String calculate(String expression) {
 		StringTokenizer st = tokenizeExpression(expression);
+		String numbersType = numbersType(st);
+
+		if (numbersType.equals("roman")) {
+
+		}
+
 		Stack<Integer> numbers = new Stack<Integer>();
 		Stack<String> operations = new Stack<String>();
 
@@ -149,8 +154,22 @@ public class Calculator {
 			int res = count(first, second, operations.pop());
 			numbers.push(res);
 		}
-
+		
 		return numbers.pop().toString();
+	}
+
+	private class Expression<T> {
+		private Stack<T> numbers = new Stack<T>();
+		private Stack<String> operations = new Stack<String>();
+		private String answer;
+
+		private Expression(StringTokenizer st) {
+			answer = calculate(st);
+		}
+
+		private String calculate(StringTokenizer st) {
+			return null;
+		}
 	}
 
 	public static void main(String[] args) {
