@@ -1,6 +1,8 @@
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import interfaces.Number;
 
 public class Calculator {
 	private final static int INCREMENT = 16;
@@ -19,26 +21,21 @@ public class Calculator {
 	 * @param operation - type: String, expected: '+', '-', '*', '\'
 	 * @return binary result
 	 */
-	private int count(int a, int b, String operation) {
-		int res = 0;
+	private Number count(Number a, Number b, String operation) {
+		Number res = null;
 		if (operation.equals("+"))
-			res = a + b;
+			res = a.add(b);
 		else if (operation.equals("-"))
-			res = a - b;
+			res = a.subtract(b);
 		else if (operation.equals("*"))
-			res = a * b;
+			res = a.multiply(b);
 		else if (operation.equals("/")) {
-			if (b == 0)
+			if (b.getIntegerValue() == 0)
 				throw new IllegalArgumentException("Ділення на нуль");
-			res = a / b;
+			res = a.divide(b);
 		} else
-			throw new UnsupportedOperationException("Невідомий оператор, очикувалось: '+', '-', '*', '\\'");
+			throw new UnsupportedOperationException("Невідомий оператор, очикувалось: '+', '-', '*', '\'");
 		return res;
-	}
-
-	private RomanNumber count(RomanNumber a, RomanNumber b, String operation) {
-		int sum = count(a.getArabicValue(), b.getArabicValue(), operation);
-		return new RomanNumber(sum);
 	}
 
 	private StringTokenizer tokenizeExpression(String expression) {
@@ -55,7 +52,7 @@ public class Calculator {
 				else if (currentChar == ')')
 					bracketsCounter--;
 
-				if (i == 0)
+				if (tokenized.length() == 0)
 					tokenized += currentChar + " ";
 				else if (i == expression.length() - 1)
 					if (tokenized.charAt(tokenized.length() - 1) != ' ')
@@ -74,18 +71,23 @@ public class Calculator {
 		}
 		if (bracketsCounter != 0)
 			throw new IllegalArgumentException("Кількість дужок, що відкриваються і закриваються не збігається");
+		try {
+			isValidExpression(new StringTokenizer(tokenized));
+		} catch (IllegalArgumentException e) {
+			throw e;
+		}
 
 		return new StringTokenizer(tokenized);
 	}
 
-	private String numbersType(StringTokenizer expression) {
+	private void isValidExpression(StringTokenizer expression) {
 		String currentToken = "";
 		boolean hasRoman = false;
 		boolean hasArabic = false;
 
 		while (expression.hasMoreTokens()) {
 			currentToken = expression.nextToken();
-			if (mathOperations.containsKey(currentToken))
+			if (mathOperations.containsKey(currentToken) || currentToken.equals("(") || currentToken.equals(")"))
 				continue;
 			try {
 				Integer.parseInt(currentToken);
@@ -99,82 +101,71 @@ public class Calculator {
 			if (hasRoman && hasArabic)
 				throw new IllegalArgumentException("Введенно некоректний вираз(присутні числа різних видів)");
 		}
-		if (hasRoman)
-			return "roman";
-		else
-			return "arabic";
 	}
 
-	public String calculate(String expression) {
-		StringTokenizer st = tokenizeExpression(expression);
-		String numbersType = numbersType(st);
-
-		if (numbersType.equals("roman")) {
-
-		}
-
-		Stack<Integer> numbers = new Stack<Integer>();
+	private Number countExpression(StringTokenizer expression) {
+		Stack<Number> numbers = new Stack<Number>();
 		Stack<String> operations = new Stack<String>();
 
 		boolean isRomanNumbers = false;
-		int currentIncrement = 0;
-
 		String currentToken = "";
-		while (st.hasMoreTokens()) {
-			currentToken = st.nextToken();
+		while (expression.hasMoreTokens()) {
+			currentToken = expression.nextToken();
 			if (currentToken.equals("("))
-				currentIncrement += INCREMENT;
-			else if (currentToken.equals(")"))
-				currentIncrement += INCREMENT;
-			else if (mathOperations.containsKey(currentToken)) {
+				numbers.push(countExpression(expression));
+			else if (currentToken.equals(")")) {
+				if (numbers.empty())
+					throw new IllegalArgumentException("Введенно некоректний вираз(присутні порожні дужки)");
+				while (!operations.empty()) {
+					Number second = numbers.pop();
+					Number first = numbers.pop();
+					Number res = count(first, second, operations.pop());
+					numbers.push(res);
+				}
+				if (numbers.size() > 1)
+					throw new IllegalArgumentException("Введенно некоректний вираз(пропущено оператор)");
+				return numbers.pop();
+			} else if (mathOperations.containsKey(currentToken)) {
 				if (numbers.size() > 1 && mathOperations.get(operations.peek()) >= mathOperations.get(currentToken)) {
-					int second = numbers.pop();
-					int first = numbers.pop();
-					int res = count(first, second, operations.pop());
+					Number second = numbers.pop();
+					Number first = numbers.pop();
+					Number res = count(first, second, operations.pop());
 					numbers.push(res);
 				}
 				operations.push(currentToken);
 			} else {
 				if (isRomanNumbers)
-					numbers.push(new RomanNumber(currentToken).getArabicValue());
+					numbers.push(new RomanNumber(currentToken));
 				else {
 					try {
-						numbers.push(Integer.parseInt(currentToken));
+						numbers.push(new ArabicNumber(Integer.parseInt(currentToken)));
 					} catch (NumberFormatException e) {
 						isRomanNumbers = true;
-						numbers.push(new RomanNumber(currentToken).getArabicValue());
+						numbers.push(new RomanNumber(currentToken));
 					}
 				}
 			}
 
 		}
 		while (!operations.empty()) {
-			int second = numbers.pop();
-			int first = numbers.pop();
-			int res = count(first, second, operations.pop());
+			Number second = numbers.pop();
+			Number first = numbers.pop();
+			Number res = count(first, second, operations.pop());
 			numbers.push(res);
 		}
-		
-		return numbers.pop().toString();
+		if (numbers.size() > 1)
+			throw new IllegalArgumentException("Введенно некоректний вираз(пропущено оператор)");
+		return numbers.pop();
 	}
 
-	private class Expression<T> {
-		private Stack<T> numbers = new Stack<T>();
-		private Stack<String> operations = new Stack<String>();
-		private String answer;
-
-		private Expression(StringTokenizer st) {
-			answer = calculate(st);
-		}
-
-		private String calculate(StringTokenizer st) {
-			return null;
-		}
+	public String calculate(String expression) {
+		StringTokenizer st = tokenizeExpression(expression);
+		return countExpression(st).toString();
 	}
 
 	public static void main(String[] args) {
 		Calculator calc = new Calculator();
 
-		System.out.println(calc.calculate("IIX+II*II+X"));
+		System.out.println(calc.calculate(" (6)7"));
 	}
 }

@@ -6,6 +6,8 @@ import interfaces.Number;
  * 
  */
 class RomanNumber implements Number {
+	public static final int MAX_NUMBER = 3999;
+
 	private final int VALUE;
 	private final String NUMBER;
 
@@ -72,6 +74,8 @@ class RomanNumber implements Number {
 	 * 
 	 */
 	private String arabicToRoman(int val) {
+		if (val > MAX_NUMBER)
+			throw new IllegalArgumentException(""); // TO DO
 		if (val == 0)
 			return "";
 		String num = Integer.toString(val);
@@ -149,6 +153,9 @@ class RomanNumber implements Number {
 	@Override
 	public int getIntegerValue() {
 		return VALUE;
+	}
+	public String toString() {
+		return NUMBER;
 	}
 
 }

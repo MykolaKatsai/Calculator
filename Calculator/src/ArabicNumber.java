@@ -32,4 +32,8 @@ public class ArabicNumber implements Number {
 		return VALUE;
 	}
 
+	public String toString() {
+		return new Integer(VALUE).toString();
+	}
+
 }
