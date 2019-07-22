@@ -8,16 +8,28 @@ public class CalculatorCLI {
 		Calculator calc = new Calculator();
 		BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 		String next = "";
+
+		System.out
+				.println("Програма обчислює вирази з арабських або римських чисел, щоб завершити роботу введіть (end)");
 		while (true) {
+			System.out.print("Введіть вираз: ");
 			try {
 				next = input.readLine();
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println(e);
 			}
 			if (next.equals("end"))
 				return;
-			System.out.println(calc.calculate(next));
-			System.out.println();
+			try {
+				System.out.println(calc.calculate(next));
+				System.out.println();
+			} catch (IllegalArgumentException e) {
+				System.out.println("Exception: " + e.getMessage());
+				System.out.println();
+			} catch (UnsupportedOperationException e) {
+				System.out.println("Exception: " + e.getMessage());
+				System.out.println();
+			}
 		}
 	}
 

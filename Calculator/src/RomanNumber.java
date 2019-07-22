@@ -15,7 +15,7 @@ class RomanNumber implements Number {
 	private static HashMap<Integer, String> arabicNumbers = new HashMap<Integer, String>();
 	private static boolean initialized = false;
 
-	public RomanNumber(String num) {
+	public RomanNumber(String num) throws IllegalArgumentException {
 		if (!initialized)
 			initialize();
 		VALUE = romanToArabic(num);
@@ -26,25 +26,17 @@ class RomanNumber implements Number {
 
 	}
 
-	public RomanNumber(int val) {
+	public RomanNumber(int val) throws IllegalArgumentException {
 		if (!initialized)
 			initialize();
 		NUMBER = arabicToRoman(val);
 		VALUE = val;
 	}
 
-	public int getArabicValue() {
-		return VALUE;
-	}
-
-	public String getRomanValue() {
-		return NUMBER;
-	}
-
 	/**
 	 * 
 	 */
-	private int romanToArabic(String num) {
+	private int romanToArabic(String num) throws IllegalArgumentException {
 		int res = 0;
 		int localSum = 0;
 		int lastVal = 0;
@@ -73,9 +65,10 @@ class RomanNumber implements Number {
 	/**
 	 * 
 	 */
-	private String arabicToRoman(int val) {
+	private String arabicToRoman(int val) throws IllegalArgumentException {
 		if (val > MAX_NUMBER)
-			throw new IllegalArgumentException(""); // TO DO
+			throw new IllegalArgumentException(
+					"Число " + val + " завелике для переводу в римське, підтримуються числа <= " + MAX_NUMBER); // TO DO
 		if (val == 0)
 			return "";
 		String num = Integer.toString(val);
@@ -154,7 +147,16 @@ class RomanNumber implements Number {
 	public int getIntegerValue() {
 		return VALUE;
 	}
+
 	public String toString() {
+		return NUMBER;
+	}
+
+	public int getArabicValue() {
+		return VALUE;
+	}
+
+	public String getRomanValue() {
 		return NUMBER;
 	}
 

@@ -1,14 +1,12 @@
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import interfaces.Number;
 
 public class Calculator {
-	private final static int INCREMENT = 16;
 	private static HashMap<String, Integer> mathOperations = new HashMap<String, Integer>();
 
-	public Calculator() {
+	public Calculator() throws IllegalArgumentException, UnsupportedOperationException {
 		mathOperations.put("+", 11);
 		mathOperations.put("-", 11);
 		mathOperations.put("*", 12);
@@ -21,7 +19,8 @@ public class Calculator {
 	 * @param operation - type: String, expected: '+', '-', '*', '\'
 	 * @return binary result
 	 */
-	private Number count(Number a, Number b, String operation) {
+	private Number count(Number a, Number b, String operation)
+			throws IllegalArgumentException, UnsupportedOperationException {
 		Number res = null;
 		if (operation.equals("+"))
 			res = a.add(b);
@@ -38,7 +37,7 @@ public class Calculator {
 		return res;
 	}
 
-	private StringTokenizer tokenizeExpression(String expression) {
+	private StringTokenizer tokenizeExpression(String expression) throws IllegalArgumentException {
 		String tokenized = "";
 		int bracketsCounter = 0;
 
@@ -71,6 +70,7 @@ public class Calculator {
 		}
 		if (bracketsCounter != 0)
 			throw new IllegalArgumentException("Кількість дужок, що відкриваються і закриваються не збігається");
+
 		try {
 			isValidExpression(new StringTokenizer(tokenized));
 		} catch (IllegalArgumentException e) {
@@ -80,7 +80,7 @@ public class Calculator {
 		return new StringTokenizer(tokenized);
 	}
 
-	private void isValidExpression(StringTokenizer expression) {
+	private void isValidExpression(StringTokenizer expression) throws IllegalArgumentException {
 		String currentToken = "";
 		boolean hasRoman = false;
 		boolean hasArabic = false;
@@ -103,7 +103,8 @@ public class Calculator {
 		}
 	}
 
-	private Number countExpression(StringTokenizer expression) {
+	private Number countExpression(StringTokenizer expression)
+			throws IllegalArgumentException, UnsupportedOperationException {
 		Stack<Number> numbers = new Stack<Number>();
 		Stack<String> operations = new Stack<String>();
 
@@ -158,14 +159,14 @@ public class Calculator {
 		return numbers.pop();
 	}
 
-	public String calculate(String expression) {
-		StringTokenizer st = tokenizeExpression(expression);
-		return countExpression(st).toString();
+	public String calculate(String expression) throws IllegalArgumentException, UnsupportedOperationException {
+		try {
+			StringTokenizer st = tokenizeExpression(expression);
+
+			return "Результат: " + countExpression(st).toString();
+		} catch (IllegalArgumentException e) {
+			throw e;
+		}
 	}
 
-	public static void main(String[] args) {
-		Calculator calc = new Calculator();
-
-		System.out.println(calc.calculate(" (6)7"));
-	}
 }
