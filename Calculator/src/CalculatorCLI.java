@@ -29,6 +29,9 @@ public class CalculatorCLI {
 			} catch (UnsupportedOperationException e) {
 				System.out.println("Exception: " + e.getMessage());
 				System.out.println();
+			}catch (Exception e) {
+				System.out.println("Exception: невідома помилка");
+				System.out.println();
 			}
 		}
 	}
