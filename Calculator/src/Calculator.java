@@ -4,9 +4,12 @@ import java.util.StringTokenizer;
 import interfaces.Number;
 
 public class Calculator {
+	/**
+	 * Stores mathematical operations and their priority
+	 */
 	private static HashMap<String, Integer> mathOperations = new HashMap<String, Integer>();
 
-	public Calculator() throws IllegalArgumentException, UnsupportedOperationException {
+	public Calculator() {
 		mathOperations.put("+", 11);
 		mathOperations.put("-", 11);
 		mathOperations.put("*", 12);
@@ -14,13 +17,18 @@ public class Calculator {
 	}
 
 	/**
+	 * Сalculates the result of a binary operation on two classes that implement the
+	 * interface Number
+	 * 
 	 * @param a         - type: int, -2^32 <= a <= 2^32
 	 * @param b         - type: int, -2^32 <= a <= 2^32
 	 * @param operation - type: String, expected: '+', '-', '*', '\'
 	 * @return binary result
+	 * @throws ArithmeticException           division by zero
+	 * @throws UnsupportedOperationException unknown operator
 	 */
 	private Number count(Number a, Number b, String operation)
-			throws IllegalArgumentException, UnsupportedOperationException {
+			throws ArithmeticException, UnsupportedOperationException {
 		Number res = null;
 		if (operation.equals("+"))
 			res = a.add(b);
@@ -30,13 +38,16 @@ public class Calculator {
 			res = a.multiply(b);
 		else if (operation.equals("/")) {
 			if (b.getIntegerValue() == 0)
-				throw new IllegalArgumentException("Ділення на нуль");
+				throw new ArithmeticException("Ділення на нуль");
 			res = a.divide(b);
 		} else
 			throw new UnsupportedOperationException("Невідомий оператор, очикувалось: '+', '-', '*', '\'");
 		return res;
 	}
 
+	/**
+	 * 
+	 */
 	private StringTokenizer tokenizeExpression(String expression) throws IllegalArgumentException {
 		String tokenized = "";
 		int bracketsCounter = 0;
@@ -104,7 +115,7 @@ public class Calculator {
 	}
 
 	private Number countExpression(StringTokenizer expression)
-			throws IllegalArgumentException, UnsupportedOperationException {
+			throws IllegalArgumentException, UnsupportedOperationException, ArithmeticException {
 		Stack<Number> numbers = new Stack<Number>();
 		Stack<String> operations = new Stack<String>();
 
@@ -159,7 +170,18 @@ public class Calculator {
 		return numbers.pop();
 	}
 
-	public String calculate(String expression) throws IllegalArgumentException, UnsupportedOperationException {
+	/**
+	 * Calculates expressions from Arabic or Roman numbers
+	 * 
+	 * @param expression
+	 * @return result of evaluating this expression
+	 * @throws IllegalArgumentException      expression is not valid
+	 * @throws UnsupportedOperationException expression contains unsupported
+	 *                                       operation
+	 * @throws ArithmeticException           expression contains division by zero
+	 */
+	public String calculate(String expression)
+			throws IllegalArgumentException, UnsupportedOperationException, ArithmeticException {
 		try {
 			StringTokenizer st = tokenizeExpression(expression);
 
